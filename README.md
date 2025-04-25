@@ -104,7 +104,7 @@ GRANT ALL PRIVILEGES ON DATABASE philosophical_concepts TO philo_user;
 cd philosophical-concepts-service
 
 # Применение схемы базы данных
-psql -U philo_user -d philosophical_concepts -f database/full-database-schema.sql
+psql -U philo_user -d philosophical_concepts -f database/database-schema.sql
 ```
 
 ## 4. Настройка Redis
