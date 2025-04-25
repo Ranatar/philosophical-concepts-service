@@ -1,0 +1,58 @@
+graph TD
+    subgraph "Frontend"
+        UI[User Interface]
+        GraphEditor[Graph Editor]
+        ThesisViewer[Thesis Viewer]
+        SynthesisManager[Synthesis Manager]
+    end
+    
+    subgraph "Backend"
+        API[API Gateway]
+        AuthService[Authentication Service]
+        ConceptService[Concept Service]
+        CategoryService[Category Service]
+        ConnectionService[Connection Service]
+        ThesisService[Thesis Service]
+        SynthesisService[Synthesis Service]
+        ClaudeService[Claude Integration Service]
+    end
+    
+    subgraph "External Services"
+        Claude[Claude API]
+    end
+    
+    subgraph "Data Storage"
+        PostgreSQL[(PostgreSQL)]
+        Redis[(Redis Cache)]
+    end
+    
+    UI --> API
+    GraphEditor --> API
+    ThesisViewer --> API
+    SynthesisManager --> API
+    
+    API --> AuthService
+    API --> ConceptService
+    API --> CategoryService
+    API --> ConnectionService
+    API --> ThesisService
+    API --> SynthesisService
+    
+    ConceptService --> PostgreSQL
+    CategoryService --> PostgreSQL
+    ConnectionService --> PostgreSQL
+    ThesisService --> PostgreSQL
+    SynthesisService --> PostgreSQL
+    AuthService --> PostgreSQL
+    
+    ConceptService --> Redis
+    ThesisService --> Redis
+    AuthService --> Redis
+    
+    ClaudeService --> Claude
+    
+    ConceptService --> ClaudeService
+    CategoryService --> ClaudeService
+    ConnectionService --> ClaudeService
+    ThesisService --> ClaudeService
+    SynthesisService --> ClaudeService

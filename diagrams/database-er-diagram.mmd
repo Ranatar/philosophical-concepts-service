@@ -1,0 +1,128 @@
+erDiagram
+    Users ||--o{ Concepts : creates
+    Concepts ||--o{ Categories : contains
+    Concepts ||--o{ Connections : has
+    Concepts ||--o{ Theses : generates
+    Categories ||--o{ CategoryAttributes : has
+    Connections ||--o{ ConnectionAttributes : has
+    Theses ||--o{ ThesisVersions : has_versions
+    Concepts ||--o{ SynthesisMeta : result_of
+    Users ||--o{ ClaudeInteractions : performs
+    
+    Users {
+        string user_id PK
+        string username
+        string email
+        string password_hash
+        datetime created_at
+        datetime last_login
+        string account_type
+    }
+    
+    Concepts {
+        string concept_id PK
+        string user_id FK
+        string name
+        string description
+        datetime creation_date
+        datetime last_modified
+        string historical_context
+        boolean is_synthesis
+        json parent_concepts
+        string synthesis_method
+        string focus_area
+    }
+    
+    Categories {
+        string category_id PK
+        string concept_id FK
+        string name
+        string definition
+        string extended_description
+        string source
+        datetime created_at
+        datetime last_modified
+    }
+    
+    CategoryAttributes {
+        string attribute_id PK
+        string category_id FK
+        string attribute_type
+        float value
+        string justification
+        string methodology
+        datetime created_at
+        datetime last_modified
+    }
+    
+    Connections {
+        string connection_id PK
+        string concept_id FK
+        string source_category_id FK
+        string target_category_id FK
+        string connection_type
+        string direction
+        string description
+        datetime created_at
+        datetime last_modified
+    }
+    
+    ConnectionAttributes {
+        string attribute_id PK
+        string connection_id FK
+        string attribute_type
+        float value
+        string justification
+        string methodology
+        datetime created_at
+        datetime last_modified
+    }
+    
+    Theses {
+        string thesis_id PK
+        string concept_id FK
+        string text
+        string type
+        json derived_from
+        json generation_parameters
+        boolean used_weights
+        string style
+        datetime created_at
+        datetime last_modified
+    }
+    
+    ThesisVersions {
+        string version_id PK
+        string thesis_id FK
+        string text
+        string justification
+        string counterarguments
+        string historical_analogs
+        string practical_implications
+        datetime created_at
+    }
+    
+    SynthesisMeta {
+        string synthesis_id PK
+        string result_concept_id FK
+        json source_concept_ids
+        string synthesis_method
+        string innovation_level
+        string abstraction_level
+        string historical_context
+        string target_application
+        datetime created_at
+        json compatibility_analysis
+    }
+    
+    ClaudeInteractions {
+        string interaction_id PK
+        string user_id FK
+        string concept_id FK
+        string interaction_type
+        string prompt
+        string response
+        integer tokens_used
+        datetime created_at
+        integer duration_ms
+    }

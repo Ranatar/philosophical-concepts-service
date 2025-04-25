@@ -1,0 +1,37 @@
+sequenceDiagram
+    actor User
+    participant UI as User Interface
+    participant API as API Gateway
+    participant TS as ThesisService
+    participant CS as ConceptService
+    participant Claude as Claude Service
+    participant DB as Database
+    
+    User->>UI: Configure thesis generation
+    User->>UI: Select thesis type & parameters
+    User->>UI: Start generation
+    
+    UI->>API: POST /api/concepts/:id/theses/generate
+    API->>TS: generateTheses()
+    TS->>CS: getConcept()
+    CS->>DB: Fetch concept data
+    DB-->>CS: Return concept with graph
+    CS-->>TS: Return concept
+    
+    TS->>Claude: Send thesis generation prompt
+    Claude-->>TS: Return generated theses
+    
+    TS->>DB: Save theses
+    DB-->>TS: Return theses data
+    TS-->>API: Return theses
+    API-->>UI: Display generated theses
+    
+    User->>UI: Request thesis development
+    UI->>API: POST /api/theses/:id/develop
+    API->>TS: developThesis()
+    TS->>Claude: Send development prompt
+    Claude-->>TS: Return development
+    TS->>DB: Save as thesis version
+    DB-->>TS: Return version data
+    TS-->>API: Return developed thesis
+    API-->>UI: Display thesis with development

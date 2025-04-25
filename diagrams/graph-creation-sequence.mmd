@@ -1,0 +1,51 @@
+sequenceDiagram
+    actor User
+    participant UI as User Interface
+    participant API as API Gateway
+    participant CS as ConceptService
+    participant CatS as CategoryService
+    participant ConS as ConnectionService
+    participant Claude as Claude Service
+    participant DB as Database
+    
+    User->>UI: Create new concept
+    UI->>API: POST /api/concepts
+    API->>CS: createConcept()
+    CS->>DB: Save concept
+    DB-->>CS: Return concept data
+    CS-->>API: Return concept
+    API-->>UI: Display concept workspace
+    
+    User->>UI: Add category
+    UI->>API: POST /api/concepts/:id/categories
+    API->>CatS: addCategory()
+    CatS->>DB: Save category
+    DB-->>CatS: Return category data
+    CatS-->>API: Return category
+    API-->>UI: Update graph
+    
+    User->>UI: Request category enrichment
+    UI->>API: POST /api/categories/:id/enrich
+    API->>CatS: enrichCategory()
+    CatS->>Claude: Send enrichment prompt
+    Claude-->>CatS: Return enrichment
+    CatS->>DB: Update category
+    DB-->>CatS: Return updated data
+    CatS-->>API: Return enriched category
+    API-->>UI: Display enriched category
+    
+    User->>UI: Add connection between categories
+    UI->>API: POST /api/concepts/:id/connections
+    API->>ConS: createConnection()
+    ConS->>DB: Save connection
+    DB-->>ConS: Return connection data
+    ConS-->>API: Return connection
+    API-->>UI: Update graph
+    
+    User->>UI: Request graph validation
+    UI->>API: POST /api/concepts/:id/validate
+    API->>CS: validateGraph()
+    CS->>Claude: Send validation prompt
+    Claude-->>CS: Return validation analysis
+    CS-->>API: Return validation result
+    API-->>UI: Display validation feedback

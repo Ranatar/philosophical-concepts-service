@@ -1,0 +1,43 @@
+sequenceDiagram
+    actor User
+    participant UI as User Interface
+    participant API as API Gateway
+    participant SS as SynthesisService
+    participant CS as ConceptService
+    participant Claude as Claude Service
+    participant DB as Database
+    
+    User->>UI: Select concepts for synthesis
+    User->>UI: Configure synthesis parameters
+    User->>UI: Request compatibility analysis
+    
+    UI->>API: POST /api/synthesis/compatibility
+    API->>SS: analyzeSynthesisCompatibility()
+    SS->>CS: getConcepts()
+    CS->>DB: Fetch concepts data
+    DB-->>CS: Return concepts
+    CS-->>SS: Return concepts
+    
+    SS->>Claude: Send compatibility analysis prompt
+    Claude-->>SS: Return compatibility analysis
+    SS-->>API: Return analysis
+    API-->>UI: Display compatibility analysis
+    
+    User->>UI: Proceed with synthesis
+    UI->>API: POST /api/synthesis/synthesize
+    API->>SS: synthesizeConcepts()
+    SS->>Claude: Send synthesis prompt
+    Claude-->>SS: Return synthesized concept
+    
+    SS->>DB: Save new concept & metadata
+    DB-->>SS: Return saved data
+    SS-->>API: Return synthesis result
+    API-->>UI: Display new concept
+    
+    User->>UI: Request critical analysis
+    UI->>API: GET /api/synthesis/:id/analysis
+    API->>SS: criticallyAnalyzeSynthesis()
+    SS->>Claude: Send critical analysis prompt
+    Claude-->>SS: Return critical analysis
+    SS-->>API: Return analysis
+    API-->>UI: Display critical analysis
