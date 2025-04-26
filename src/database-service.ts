@@ -311,16 +311,19 @@ export class DatabaseService {
       
       const result = await client.query(
         `INSERT INTO categories(
-          concept_id, name, definition, extended_description, source
+          concept_id, name, definition, extended_description, source,
+          tradition_concepts, philosophers
         ) 
-        VALUES($1, $2, $3, $4, $5) 
+        VALUES($1, $2, $3, $4, $5, $6, $7) 
         RETURNING *`,
         [
           category.concept_id,
           category.name,
           category.definition,
           category.extended_description || null,
-          category.source || null
+          category.source || null,
+          JSON.stringify(category.tradition_concepts),
+          JSON.stringify(category.philosophers)
         ]
       );
       
@@ -620,9 +623,10 @@ export class DatabaseService {
       const result = await client.query(
         `INSERT INTO connections(
           concept_id, source_category_id, target_category_id, 
-          connection_type, direction, description
+          connection_type, direction, description,
+          tradition_concepts, philosophers
         ) 
-        VALUES($1, $2, $3, $4, $5, $6) 
+        VALUES($1, $2, $3, $4, $5, $6, $7, $8) 
         RETURNING *`,
         [
           connection.concept_id,
@@ -630,7 +634,9 @@ export class DatabaseService {
           connection.target_category_id,
           connection.connection_type,
           connection.direction,
-          connection.description || null
+          connection.description || null,
+          JSON.stringify(connection.tradition_concepts),
+          JSON.stringify(connection.philosophers)
         ]
       );
       
@@ -1392,5 +1398,43 @@ export class DatabaseService {
     } finally {
       client.release();
     }
+  }
+}
+
+/**
+ * Поиск категорий по традиции/концепции
+ */
+async searchCategoriesByTradition(tradition: string): Promise<Category[]> {
+  const client = await this.getClient();
+  try {
+    const result = await client.query(
+      `SELECT * FROM categories WHERE tradition_concepts ? $1`,
+      [tradition]
+    );
+    return result.rows;
+  } catch (error) {
+    logger.error(`Error searching categories by tradition: ${error}`);
+    throw new Error(`Failed to search categories by tradition: ${error}`);
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * Поиск категорий по философу
+ */
+async searchCategoriesByPhilosopher(philosopher: string): Promise<Category[]> {
+  const client = await this.getClient();
+  try {
+    const result = await client.query(
+      `SELECT * FROM categories WHERE philosophers ? $1`,
+      [philosopher]
+    );
+    return result.rows;
+  } catch (error) {
+    logger.error(`Error searching categories by philosopher: ${error}`);
+    throw new Error(`Failed to search categories by philosopher: ${error}`);
+  } finally {
+    client.release();
   }
 }

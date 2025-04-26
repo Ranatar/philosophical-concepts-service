@@ -32,6 +32,8 @@ export interface Category {
   definition: string;
   extended_description?: string;
   source?: string;
+  tradition_concepts: string[];  // Изменено на массив
+  philosophers: string[];        // Изменено на массив
   created_at: Date;
   last_modified: Date;
   attributes?: CategoryAttribute[];
@@ -56,6 +58,8 @@ export interface Connection {
   connection_type: 'hierarchical' | 'causal' | 'dialectical' | 'functional' | 'derivative' | 'associative';
   direction: 'directed' | 'bidirectional' | 'undirected';
   description?: string;
+  tradition_concepts: string[];  // Изменено на массив
+  philosophers: string[];        // Изменено на массив
   created_at: Date;
   last_modified: Date;
   attributes?: ConnectionAttribute[];
@@ -311,6 +315,8 @@ export interface CategoryCreateDTO {
   definition: string;
   extended_description?: string;
   source?: string;
+  tradition_concepts?: string[];  // Массив
+  philosophers?: string[];        // Массив
 }
 
 export interface CategoryUpdateDTO {
@@ -318,6 +324,8 @@ export interface CategoryUpdateDTO {
   definition?: string;
   extended_description?: string;
   source?: string;
+  tradition_concepts?: string[];  // Массив
+  philosophers?: string[];        // Массив
 }
 
 export interface ConnectionCreateDTO {
@@ -326,12 +334,16 @@ export interface ConnectionCreateDTO {
   connection_type: 'hierarchical' | 'causal' | 'dialectical' | 'functional' | 'derivative' | 'associative';
   direction: 'directed' | 'bidirectional' | 'undirected';
   description?: string;
+  tradition_concepts?: string[];  // Массив
+  philosophers?: string[];        // Массив
 }
 
 export interface ConnectionUpdateDTO {
   connection_type?: 'hierarchical' | 'causal' | 'dialectical' | 'functional' | 'derivative' | 'associative';
   direction?: 'directed' | 'bidirectional' | 'undirected';
   description?: string;
+  tradition_concepts?: string[];  // Массив
+  philosophers?: string[];        // Массив
 }
 
 export interface AttributeCreateDTO {

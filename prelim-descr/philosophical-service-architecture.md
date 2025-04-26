@@ -50,6 +50,8 @@
 - `definition`: определение категории
 - `extended_description`: расширенное описание
 - `source`: источник (автор, произведение)
+- `tradition_concepts`: JSON-массив традиций/концепций
+- `philosophers`: JSON-массив философов
 - `created_at`: дата создания
 - `last_modified`: дата последнего изменения
 
@@ -73,6 +75,8 @@
 - `connection_type`: тип связи (иерархическая, причинно-следственная и т.д.)
 - `direction`: направленность (направленная, двунаправленная, ненаправленная)
 - `description`: описание связи
+- `tradition_concepts`: JSON-массив традиций/концепций
+- `philosophers`: JSON-массив философов
 - `created_at`: дата создания
 - `last_modified`: дата последнего изменения
 
@@ -144,6 +148,7 @@
 2. По часто используемым полям фильтрации
 3. По полям дат для работы с временными рядами
 4. Полнотекстовые индексы для поиска по тезисам и описаниям
+5. GIN-индексы для JSONB полей для ускорения поиска по традициям и философам
 
 ### 2.3 Миграция и версионирование схемы
 
@@ -302,6 +307,12 @@ class CategoryService {
   
   // Обогащение категории
   async enrichCategory(categoryId: string): Promise<Category>;
+
+  // Поиск категорий по традиции/концепции
+  async searchCategoriesByTradition(tradition: string): Promise<Category[]>;
+  
+  // Поиск категорий по философу
+  async searchCategoriesByPhilosopher(philosopher: string): Promise<Category[]>;
   
   // Управление атрибутами категории
   async addCategoryAttribute(categoryId: string, data: AttributeCreateDTO): Promise<CategoryAttribute>;
@@ -324,6 +335,12 @@ class ConnectionService {
   
   // Обогащение связи
   async enrichConnection(connectionId: string): Promise<Connection>;
+
+  // Поиск связей по традиции/концепции
+  async searchConnectionsByTradition(tradition: string): Promise<Connection[]>;
+  
+  // Поиск связей по философу
+  async searchConnectionsByPhilosopher(philosopher: string): Promise<Connection[]>;
   
   // Управление атрибутами связи
   async addConnectionAttribute(connectionId: string, data: AttributeCreateDTO): Promise<ConnectionAttribute>;
@@ -645,36 +662,46 @@ const generateThesesPrompt = `
 Категории:
 ${categories.map(cat => {
   let catText = `- ${cat.name}: ${cat.definition}`;
-  if (params.useWeights && cat.attributes.length > 0) {
-    catText += ` [Характеристики: ${cat.attributes.map(attr => 
-      `${attr.attribute_type}: ${attr.value}`
-    ).join(', ')}]`;
+  
+  if (cat.tradition_concepts.length > 0) {
+    catText += `\n  Традиции: ${cat.tradition_concepts.join(', ')}`;
   }
+  
+  if (cat.philosophers.length > 0) {
+    catText += `\n  Философы: ${cat.philosophers.join(', ')}`;
+  }
+  
+  if (params.useWeights && cat.attributes.length > 0) {
+    catText += `\n  Характеристики: ${cat.attributes.map(attr => 
+      `${attr.attribute_type}: ${attr.value}`
+    ).join(', ')}`;
+  }
+  
   return catText;
 }).join('\n')}
 
 Связи:
 ${connections.map(conn => {
   let connText = `- ${conn.source_category.name} ${conn.direction === 'directed' ? '->' : '<->'} ${conn.target_category.name} (${conn.connection_type}): ${conn.description}`;
-  if (params.useWeights && conn.attributes.length > 0) {
-    connText += ` [Характеристики: ${conn.attributes.map(attr => 
-      `${attr.attribute_type}: ${attr.value}`
-    ).join(', ')}]`;
+  
+  if (conn.tradition_concepts.length > 0) {
+    connText += `\n  Традиции: ${conn.tradition_concepts.join(', ')}`;
   }
+  
+  if (conn.philosophers.length > 0) {
+    connText += `\n  Философы: ${conn.philosophers.join(', ')}`;
+  }
+  
+  if (params.useWeights && conn.attributes.length > 0) {
+    connText += `\n  Характеристики: ${conn.attributes.map(attr => 
+      `${attr.attribute_type}: ${attr.value}`
+    ).join(', ')}`;
+  }
+  
   return connText;
 }).join('\n')}
 
-Тезисы должны быть выражены в ${params.style} стиле. Для каждого тезиса укажи, из каких именно элементов графа он логически следует.
-
-${params.useWeights ? 'Обрати особое внимание на категории с высокой центральностью и связи с высокой силой. Для категорий с низкой определённостью предложи альтернативные формулировки тезисов.' : ''}
-
-Форматируй ответ следующим образом:
-1. [Тезис 1]
-   - Источник: [список категорий и связей]
-   - Обоснование: [краткое обоснование]
-
-2. [Тезис 2]
-   ...
+...
 `;
 ```
 

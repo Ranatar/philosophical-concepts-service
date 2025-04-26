@@ -449,6 +449,27 @@ export const GraphEditor: React.FC<GraphEditorProps> = ({ conceptId, readOnly = 
                   </ul>
                 </div>
               )}
+			  
+			  {selectedNode.tradition_concepts && selectedNode.tradition_concepts.length > 0 && (
+				  <div>
+					<strong>Traditions/Concepts:</strong>
+					<div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '5px' }}>
+					  {selectedNode.tradition_concepts.map((tradition, index) => (
+						<Chip key={index} label={tradition} size="small" />
+					  ))}
+					</div>
+				  </div>
+				)}
+				{selectedNode.philosophers && selectedNode.philosophers.length > 0 && (
+				  <div style={{ marginTop: '10px' }}>
+					<strong>Philosophers:</strong>
+					<div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '5px' }}>
+					  {selectedNode.philosophers.map((philosopher, index) => (
+						<Chip key={index} label={philosopher} size="small" />
+					  ))}
+					</div>
+				  </div>
+				)}
               
               {!readOnly && (
                 <div style={{ marginTop: '10px' }}>
@@ -509,6 +530,27 @@ export const GraphEditor: React.FC<GraphEditorProps> = ({ conceptId, readOnly = 
                   </ul>
                 </div>
               )}
+			  
+			  {selectedEdge.tradition_concepts && selectedEdge.tradition_concepts.length > 0 && (
+				  <div>
+					<strong>Traditions/Concepts:</strong>
+					<div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '5px' }}>
+					  {selectedEdge.tradition_concepts.map((tradition, index) => (
+						<Chip key={index} label={tradition} size="small" />
+					  ))}
+					</div>
+				  </div>
+				)}
+				{selectedEdge.philosophers && selectedEdge.philosophers.length > 0 && (
+				  <div style={{ marginTop: '10px' }}>
+					<strong>Philosophers:</strong>
+					<div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '5px' }}>
+					  {selectedEdge.philosophers.map((philosopher, index) => (
+						<Chip key={index} label={philosopher} size="small" />
+					  ))}
+					</div>
+				  </div>
+				)}
               
               {!readOnly && (
                 <div style={{ marginTop: '10px' }}>
@@ -597,7 +639,7 @@ export const GraphEditor: React.FC<GraphEditorProps> = ({ conceptId, readOnly = 
 // src/components/CategoryForm.tsx
 
 import React, { useState } from 'react';
-import { TextField, Button, FormControl, FormLabel, Typography } from '@mui/material';
+import { Chip, TextField, Autocomplete, Button, FormControl, FormLabel, Typography } from '@mui/material';
 import { Category } from '../types';
 
 interface CategoryFormProps {
@@ -613,6 +655,8 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ conceptId, category,
   const [extendedDescription, setExtendedDescription] = useState(category?.extended_description || '');
   const [source, setSource] = useState(category?.source || '');
   const [error, setError] = useState<string | null>(null);
+  const [traditionConcepts, setTraditionConcepts] = useState<string[]>(category?.tradition_concepts || []);
+  const [philosophers, setPhilosophers] = useState<string[]>(category?.philosophers || []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -627,12 +671,14 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ conceptId, category,
       return;
     }
     
-    onSubmit({
-      concept_id: conceptId,
+	onSubmit({
+	  concept_id: conceptId,
       name,
       definition,
       extended_description: extendedDescription || undefined,
-      source: source || undefined
+      source: source || undefined,
+      tradition_concepts: traditionConcepts,
+      philosophers: philosophers
     });
   };
 
@@ -694,6 +740,64 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ conceptId, category,
         />
       </FormControl>
       
+	  <FormControl fullWidth margin="normal">
+		<FormLabel>Traditions/Concepts (optional)</FormLabel>
+		<Autocomplete
+		  multiple
+		  freeSolo
+		  options={[]} // Можно добавить предзаданные опции
+		  value={traditionConcepts}
+		  onChange={(event, newValue) => {
+		  setTraditionConcepts(newValue);
+		}}
+    renderTags={(value, getTagProps) =>
+      value.map((option, index) => (
+        <Chip
+          label={option}
+          {...getTagProps({ index })}
+          variant="outlined"
+        />
+      ))
+    }
+    renderInput={(params) => (
+      <TextField
+        {...params}
+        variant="outlined"
+        placeholder="Enter traditions or concepts"
+      />
+    )}
+  />
+</FormControl>
+
+<FormControl fullWidth margin="normal">
+  <FormLabel>Philosophers (optional)</FormLabel>
+  <Autocomplete
+    multiple
+    freeSolo
+    options={[]} // Можно добавить предзаданные опции
+    value={philosophers}
+    onChange={(event, newValue) => {
+      setPhilosophers(newValue);
+    }}
+    renderTags={(value, getTagProps) =>
+      value.map((option, index) => (
+        <Chip
+          label={option}
+          {...getTagProps({ index })}
+          variant="outlined"
+        />
+      ))
+    }
+    renderInput={(params) => (
+      <TextField
+        {...params}
+        variant="outlined"
+        placeholder="Enter philosophers"
+      />
+    )}
+  />
+</FormControl>
+	  
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
         <Button 
           type="button" 
@@ -718,7 +822,9 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ conceptId, category,
 
 import React, { useState } from 'react';
 import { 
+  Chip, 
   TextField, 
+  Autocomplete, 
   Button, 
   FormControl, 
   FormLabel, 
@@ -751,6 +857,8 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
   const [direction, setDirection] = useState(connection?.direction || 'directed');
   const [description, setDescription] = useState(connection?.description || '');
   const [error, setError] = useState<string | null>(null);
+  const [traditionConcepts, setTraditionConcepts] = useState<string[]>(connection?.tradition_concepts || []);
+  const [philosophers, setPhilosophers] = useState<string[]>(connection?.philosophers || []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -777,6 +885,8 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
       connection_type: connectionType as any,
       direction: direction as any,
       description: description || undefined
+	  tradition_concepts: traditionConcepts,
+      philosophers: philosophers
     });
   };
 
@@ -864,6 +974,64 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
         />
       </FormControl>
       
+	  <FormControl fullWidth margin="normal">
+  <FormLabel>Traditions/Concepts (optional)</FormLabel>
+  <Autocomplete
+    multiple
+    freeSolo
+    options={[]} // Можно добавить предзаданные опции
+    value={traditionConcepts}
+    onChange={(event, newValue) => {
+      setTraditionConcepts(newValue);
+    }}
+    renderTags={(value, getTagProps) =>
+      value.map((option, index) => (
+        <Chip
+          label={option}
+          {...getTagProps({ index })}
+          variant="outlined"
+        />
+      ))
+    }
+    renderInput={(params) => (
+      <TextField
+        {...params}
+        variant="outlined"
+        placeholder="Enter traditions or concepts"
+      />
+    )}
+  />
+</FormControl>
+
+<FormControl fullWidth margin="normal">
+  <FormLabel>Philosophers (optional)</FormLabel>
+  <Autocomplete
+    multiple
+    freeSolo
+    options={[]} // Можно добавить предзаданные опции
+    value={philosophers}
+    onChange={(event, newValue) => {
+      setPhilosophers(newValue);
+    }}
+    renderTags={(value, getTagProps) =>
+      value.map((option, index) => (
+        <Chip
+          label={option}
+          {...getTagProps({ index })}
+          variant="outlined"
+        />
+      ))
+    }
+    renderInput={(params) => (
+      <TextField
+        {...params}
+        variant="outlined"
+        placeholder="Enter philosophers"
+      />
+    )}
+  />
+</FormControl>
+	  
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
         <Button 
           type="button" 

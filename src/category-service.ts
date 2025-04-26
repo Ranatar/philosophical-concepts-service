@@ -44,7 +44,9 @@ export class CategoryService {
         name: data.name,
         definition: data.definition,
         extended_description: data.extended_description,
-        source: data.source
+        source: data.source,
+        tradition_concepts: data.tradition_concepts || [],  // По умолчанию пустой массив
+        philosophers: data.philosophers || []                // По умолчанию пустой массив
       };
       
       return await this.dbService.createCategory(category);
@@ -65,6 +67,15 @@ export class CategoryService {
       await this.getCategoryById(categoryId);
       
       return await this.dbService.updateCategory(categoryId, data);
+    } 
+    if (updates.tradition_concepts !== undefined) {
+      updateFields.push(`tradition_concepts = $${valueIndex++}`);
+      values.push(JSON.stringify(updates.tradition_concepts));
+    }
+
+    if (updates.philosophers !== undefined) {
+      updateFields.push(`philosophers = $${valueIndex++}`);
+      values.push(JSON.stringify(updates.philosophers));
     } catch (error) {
       logger.error(`Failed to update category: ${error}`);
       throw new Error(`Failed to update category: ${error}`);

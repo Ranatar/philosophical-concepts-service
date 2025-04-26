@@ -71,7 +71,9 @@ export class ConnectionService {
         target_category_id: data.target_category_id,
         connection_type: data.connection_type,
         direction: data.direction,
-        description: data.description
+        description: data.description,
+        tradition_concepts: data.tradition_concepts || [],  // По умолчанию пустой массив
+        philosophers: data.philosophers || []                // По умолчанию пустой массив
       };
       
       return await this.dbService.createConnection(connection);
@@ -92,6 +94,15 @@ export class ConnectionService {
       await this.getConnectionById(connectionId);
       
       return await this.dbService.updateConnection(connectionId, data);
+    } 
+    if (updates.tradition_concepts !== undefined) {
+      updateFields.push(`tradition_concepts = $${valueIndex++}`);
+      values.push(JSON.stringify(updates.tradition_concepts));
+    }
+
+    if (updates.philosophers !== undefined) {
+      updateFields.push(`philosophers = $${valueIndex++}`);
+      values.push(JSON.stringify(updates.philosophers));
     } catch (error) {
       logger.error(`Failed to update connection: ${error}`);
       throw new Error(`Failed to update connection: ${error}`);

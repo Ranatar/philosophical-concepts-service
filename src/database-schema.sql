@@ -48,6 +48,8 @@ CREATE TABLE categories (
     definition TEXT NOT NULL,
     extended_description TEXT,
     source TEXT,
+    tradition_concepts JSONB DEFAULT '[]'::jsonb,  -- Массив традиций/концепций
+    philosophers JSONB DEFAULT '[]'::jsonb,        -- Массив философов
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     last_modified TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -77,6 +79,8 @@ CREATE TABLE connections (
     connection_type VARCHAR(50) NOT NULL,
     direction VARCHAR(20) NOT NULL,
     description TEXT,
+    tradition_concepts JSONB DEFAULT '[]'::jsonb,  -- Массив традиций/концепций
+    philosophers JSONB DEFAULT '[]'::jsonb,        -- Массив философов
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     last_modified TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT check_connection_type CHECK (
@@ -89,6 +93,12 @@ CREATE TABLE connections (
         direction IN ('directed', 'bidirectional', 'undirected')
     )
 );
+
+-- Добавляем индексы для поиска по JSONB массивам
+CREATE INDEX idx_categories_tradition_concepts ON categories USING GIN (tradition_concepts);
+CREATE INDEX idx_categories_philosophers ON categories USING GIN (philosophers);
+CREATE INDEX idx_connections_tradition_concepts ON connections USING GIN (tradition_concepts);
+CREATE INDEX idx_connections_philosophers ON connections USING GIN (philosophers);
 
 -- Таблица атрибутов связей (опциональные количественные характеристики)
 CREATE TABLE connection_attributes (
