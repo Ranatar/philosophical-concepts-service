@@ -39,13 +39,19 @@
 {
   "name": "category_enrichment",
   "description": "Обогащение категории дополнительной информацией",
-  "template": "Для следующей категории в контексте философской концепции, предложи расширенное описание, возможные альтернативные трактовки, исторические аналоги и связанные концепты.
+ "template": "Для следующей категории в контексте философской концепции, предложи расширенное описание, возможные альтернативные трактовки, исторические аналоги и связанные концепты.
 
 Название концепции: {{concept_name}}
 Описание концепции: {{concept_description}}
 
 Категория: {{category_name}}
 Определение: {{category_definition}}
+{{#if tradition_concepts}}
+Традиции/Концепции: {{#each tradition_concepts}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+{{/if}}
+{{#if philosophers}}
+Философы: {{#each philosophers}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+{{/if}}
 
 Структурируй ответ следующим образом:
 ## Расширенное описание
@@ -66,11 +72,13 @@
 - [Связанный концепт 2]
 ...",
   "parameters": [
-    "concept_name",
-    "concept_description",
-    "category_name",
-    "category_definition"
-  ],
+  "concept_name",
+  "concept_description",
+  "category_name",
+  "category_definition",
+  "tradition_concepts",
+  "philosophers"
+],
   "expected_response_structure": {
     "extended_description": "string",
     "alternative_interpretations": "array",
@@ -88,6 +96,12 @@
 
 Описание концепции: {{concept_description}}
 Описание связи: {{connection_description}}
+{{#if tradition_concepts}}
+Связь используется в традициях: {{#each tradition_concepts}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+{{/if}}
+{{#if philosophers}}
+Связь упоминается у философов: {{#each philosophers}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+{{/if}}
 
 Предложи философское обоснование этой связи, возможные контраргументы и примеры аналогичных связей в других философских системах.
 
@@ -104,14 +118,16 @@
 - [Пример аналогичной связи в другой философской системе 1]
 - [Пример аналогичной связи в другой философской системе 2]
 ...",
-  "parameters": [
-    "connection_type",
-    "source_category",
-    "target_category",
-    "concept_name",
-    "concept_description",
-    "connection_description"
-  ],
+ "parameters": [
+  "connection_type",
+  "source_category",
+  "target_category",
+  "concept_name",
+  "concept_description",
+  "connection_description",
+  "tradition_concepts",
+  "philosophers"
+],
   "expected_response_structure": {
     "extended_description": "string",
     "counterarguments": "array",
