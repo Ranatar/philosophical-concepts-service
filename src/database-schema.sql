@@ -83,12 +83,6 @@ CREATE TABLE connections (
     philosophers JSONB DEFAULT '[]'::jsonb,        -- Массив философов
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     last_modified TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT check_connection_type CHECK (
-        connection_type IN (
-            'hierarchical', 'causal', 'dialectical', 
-            'functional', 'derivative', 'associative'
-        )
-    ),
     CONSTRAINT check_direction CHECK (
         direction IN ('directed', 'bidirectional', 'undirected')
     )

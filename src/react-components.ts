@@ -820,7 +820,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({ conceptId, category,
 
 // src/components/ConnectionForm.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Chip, 
   TextField, 
@@ -853,12 +853,32 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
 }) => {
   const [sourceId, setSourceId] = useState(connection?.source_category_id || '');
   const [targetId, setTargetId] = useState(connection?.target_category_id || '');
-  const [connectionType, setConnectionType] = useState(connection?.connection_type || 'hierarchical');
+  const [connectionType, setConnectionType] = useState(connection?.connection_type || '');
   const [direction, setDirection] = useState(connection?.direction || 'directed');
   const [description, setDescription] = useState(connection?.description || '');
   const [error, setError] = useState<string | null>(null);
   const [traditionConcepts, setTraditionConcepts] = useState<string[]>(connection?.tradition_concepts || []);
   const [philosophers, setPhilosophers] = useState<string[]>(connection?.philosophers || []);
+  
+  // Состояние для типов связей - начинаем с пустого массива
+  const [connectionTypes, setConnectionTypes] = useState<string[]>([]);
+
+  // Загрузка существующих типов связей из базы данных
+  useEffect(() => {
+    const loadConnectionTypes = async () => {
+      try {
+        const response = await fetch('/api/connections/types');
+        if (response.ok) {
+          const types = await response.json();
+          setConnectionTypes(types);
+        }
+      } catch (error) {
+        console.error('Error loading connection types:', error);
+      }
+    };
+    
+    loadConnectionTypes();
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -878,14 +898,19 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
       return;
     }
     
+    if (!connectionType.trim()) {
+      setError('Connection type is required');
+      return;
+    }
+    
     onSubmit({
       concept_id: conceptId,
       source_category_id: sourceId,
       target_category_id: targetId,
-      connection_type: connectionType as any,
+      connection_type: connectionType,
       direction: direction as any,
-      description: description || undefined
-	  tradition_concepts: traditionConcepts,
+      description: description || undefined,
+      tradition_concepts: traditionConcepts,
       philosophers: philosophers
     });
   };
@@ -930,22 +955,26 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
         </Select>
       </FormControl>
       
-      <FormControl fullWidth margin="normal">
-        <InputLabel>Connection Type</InputLabel>
-        <Select
-          value={connectionType}
-          onChange={(e: SelectChangeEvent) => setConnectionType(e.target.value)}
-          label="Connection Type"
-          required
-        >
-          <MenuItem value="hierarchical">Hierarchical</MenuItem>
-          <MenuItem value="causal">Causal</MenuItem>
-          <MenuItem value="dialectical">Dialectical</MenuItem>
-          <MenuItem value="functional">Functional</MenuItem>
-          <MenuItem value="derivative">Derivative</MenuItem>
-          <MenuItem value="associative">Associative</MenuItem>
-        </Select>
-      </FormControl>
+		// Улучшенная версия Autocomplete для типов связей:
+		<FormControl fullWidth margin="normal">
+		  <FormLabel>Connection Type</FormLabel>
+		  <Autocomplete
+			value={connectionType}
+			onChange={(event, newValue) => {
+			  setConnectionType(newValue || '');
+			}}
+			freeSolo
+			options={connectionTypes}
+			renderInput={(params) => (
+			  <TextField
+				{...params}
+				variant="outlined"
+				placeholder="Select from existing types or enter a new one"
+				required
+			  />
+			)}
+		  />
+		</FormControl>
       
       <FormControl fullWidth margin="normal">
         <InputLabel>Direction</InputLabel>
@@ -974,64 +1003,64 @@ export const ConnectionForm: React.FC<ConnectionFormProps> = ({
         />
       </FormControl>
       
-	  <FormControl fullWidth margin="normal">
-  <FormLabel>Traditions/Concepts (optional)</FormLabel>
-  <Autocomplete
-    multiple
-    freeSolo
-    options={[]} // Можно добавить предзаданные опции
-    value={traditionConcepts}
-    onChange={(event, newValue) => {
-      setTraditionConcepts(newValue);
-    }}
-    renderTags={(value, getTagProps) =>
-      value.map((option, index) => (
-        <Chip
-          label={option}
-          {...getTagProps({ index })}
-          variant="outlined"
+      <FormControl fullWidth margin="normal">
+        <FormLabel>Traditions/Concepts (optional)</FormLabel>
+        <Autocomplete
+          multiple
+          freeSolo
+          options={[]} // Можно добавить предзаданные опции
+          value={traditionConcepts}
+          onChange={(event, newValue) => {
+            setTraditionConcepts(newValue);
+          }}
+          renderTags={(value, getTagProps) =>
+            value.map((option, index) => (
+              <Chip
+                label={option}
+                {...getTagProps({ index })}
+                variant="outlined"
+              />
+            ))
+          }
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              variant="outlined"
+              placeholder="Enter traditions or concepts"
+            />
+          )}
         />
-      ))
-    }
-    renderInput={(params) => (
-      <TextField
-        {...params}
-        variant="outlined"
-        placeholder="Enter traditions or concepts"
-      />
-    )}
-  />
-</FormControl>
+      </FormControl>
 
-<FormControl fullWidth margin="normal">
-  <FormLabel>Philosophers (optional)</FormLabel>
-  <Autocomplete
-    multiple
-    freeSolo
-    options={[]} // Можно добавить предзаданные опции
-    value={philosophers}
-    onChange={(event, newValue) => {
-      setPhilosophers(newValue);
-    }}
-    renderTags={(value, getTagProps) =>
-      value.map((option, index) => (
-        <Chip
-          label={option}
-          {...getTagProps({ index })}
-          variant="outlined"
+      <FormControl fullWidth margin="normal">
+        <FormLabel>Philosophers (optional)</FormLabel>
+        <Autocomplete
+          multiple
+          freeSolo
+          options={[]} // Можно добавить предзаданные опции
+          value={philosophers}
+          onChange={(event, newValue) => {
+            setPhilosophers(newValue);
+          }}
+          renderTags={(value, getTagProps) =>
+            value.map((option, index) => (
+              <Chip
+                label={option}
+                {...getTagProps({ index })}
+                variant="outlined"
+              />
+            ))
+          }
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              variant="outlined"
+              placeholder="Enter philosophers"
+            />
+          )}
         />
-      ))
-    }
-    renderInput={(params) => (
-      <TextField
-        {...params}
-        variant="outlined"
-        placeholder="Enter philosophers"
-      />
-    )}
-  />
-</FormControl>
-	  
+      </FormControl>
+      
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
         <Button 
           type="button" 

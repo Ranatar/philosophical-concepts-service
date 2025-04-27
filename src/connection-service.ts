@@ -441,3 +441,15 @@ export class ConnectionService {
     }
   }
 }
+
+/**
+ * Получает список всех существующих типов связей
+ */
+async getConnectionTypes(): Promise<string[]> {
+  try {
+    return await this.dbService.getConnectionTypes();
+  } catch (error) {
+    logger.error(`Failed to get connection types: ${error}`);
+    throw new Error(`Failed to get connection types: ${error}`);
+  }
+}

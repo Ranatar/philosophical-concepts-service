@@ -151,6 +151,8 @@ import { ConnectionController } from '../controllers/connection.controller';
 const router = express.Router();
 const connectionController = new ConnectionController();
 
+router.get('/types', (req, res) => connectionController.getConnectionTypes(req, res));
+
 // Получение связи по ID
 router.get('/:id', (req, res) => connectionController.getConnection(req, res));
 

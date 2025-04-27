@@ -1438,3 +1438,22 @@ async searchCategoriesByPhilosopher(philosopher: string): Promise<Category[]> {
     client.release();
   }
 }
+
+/**
+ * Получает уникальные типы связей
+ */
+async getConnectionTypes(): Promise<string[]> {
+  const client = await this.getClient();
+  try {
+    const result = await client.query(
+      'SELECT DISTINCT connection_type FROM connections ORDER BY connection_type',
+      []
+    );
+    return result.rows.map(row => row.connection_type);
+  } catch (error) {
+    logger.error(`Error getting connection types: ${error}`);
+    throw new Error(`Failed to get connection types: ${error}`);
+  } finally {
+    client.release();
+  }
+}

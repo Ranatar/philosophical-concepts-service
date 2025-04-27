@@ -311,8 +311,11 @@ export const connectionCreateValidator = [
     .withMessage('Target category ID must be a valid UUID'),
   
   body('connection_type')
-    .isIn(['hierarchical', 'causal', 'dialectical', 'functional', 'derivative', 'associative'])
-    .withMessage('Invalid connection type'),
+  .trim()
+  .notEmpty()
+  .withMessage('Connection type is required')
+  .isLength({ min: 1, max: 50 })
+  .withMessage('Connection type must be between 1 and 50 characters'),
   
   body('direction')
     .isIn(['directed', 'bidirectional', 'undirected'])

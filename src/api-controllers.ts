@@ -988,3 +988,16 @@ export class SynthesisController {
     }
   }
 }
+
+/**
+ * Получает список существующих типов связей
+ */
+async getConnectionTypes(req: Request, res: Response): Promise<void> {
+  try {
+    const types = await this.connectionService.getConnectionTypes();
+    res.json(types);
+  } catch (error) {
+    logger.error(`Error getting connection types: ${error}`);
+    res.status(500).json({ error: `Failed to get connection types: ${error.message}` });
+  }
+}
